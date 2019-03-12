@@ -12,21 +12,35 @@
 			display: none;
 		}
 	</style>
+    
+    <style>
+       /* Set the size of the div element that contains the map */
+      #map {
+        height: 400px;  /* The height is 400 pixels */
+        width: 100%;  /* The width is the width of the web page */
+       }
+    </style>
 
 </head>
 
 <body>
+    
+  <h1>Graffiti Removal Lookup</h1><p></p> 
 
+  <!--buttons for searching-->
   <div>
     <input type="text" id="status">
     <button id="search-status">Search Status</button>
-  </div>
+  </div><p></p> 
   <div>
-     <input type="text" id="ward">
-     <button id="search">Search Ward</button> 
+     <input type="number" id="ward">
+     <button id="search-ward">Search Ward</button> 
   </div>
+   <p></p> 
+  <p> Karen Chan </p> 
+  <p>Github Repository : https://karenyfchan.github.io/IT202-Project2/</p>
   
-
+  <!-- Displaying the Cards-->
   <div id="cards"></div>
 
 	<div class="card template" style="width: 18rem;">
@@ -37,25 +51,24 @@
 			<a href="#" class="view-map">View Map</a>
 		</div>
 	</div>
+    
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js">
-
 	</script>
 
 	<script>
 		$(document).ready(function(){
 
-      var endpoint = "https://data.cityofchicago.org/resource/cdmx-wzbz.json?$limit=6";
+      var endpoint = "https://data.cityofchicago.org/resource/cdmx-wzbz.json?";
 
-
+    if($("button").attr("id") == "search-status"){
       $("#search-status").on("click", function() {
         // clear the display
         $("#cards").empty();
-        if($("button").attr("id") == "search-status"){
             var searchString = $("#status").val();
             console.log(searchString);
             var url = endpoint + "&status=" + searchString;
             console.log(url);
-        }
+        
           
 
       $.get(url, function(response) {
@@ -95,6 +108,57 @@
       })
 
       });
+    }
+            
+    else if($("button").attr("id") == "search-ward"){
+      $("#search-ward").on("click", function() {
+        // clear the display
+        $("#cards").empty();
+            var searchString = $("#ward").val();
+            console.log(searchString);
+            var url = endpoint + "&ward=" + searchString;
+            console.log(url);
+        
+          
+
+      $.get(url, function(response) {
+          console.log(response);
+
+          $("#cards").append("<h2>Your query returned " + response.length + " records.</h2>");
+
+
+          var data = response;
+
+          $.each(data, function(i,v){
+            //console.log(i,v);
+
+            // clone card
+            var clone = $(".template").clone();
+            // update values
+            clone.find(".card-title").text(v.street_address);
+
+            clone.find(".card-subtitle").text(v.service_request_number);
+            
+            clone.find(".card-text").text("Location: " + v.where_is_the_graffiti_located_ + ", "
+                                        + "Surface: " + v.what_type_of_surface_is_the_graffiti_on_ + ", "
+                                        + "Date: " + v.creation_date + ", "
+                                        + "Status: " + v.status + ", "
+                                        + "Completion Date: " + v.completion_date + ", ");
+            
+            
+            clone.removeClass("template")
+
+
+            // insert into DOM
+            $("#cards").append(clone);
+
+          });
+
+
+      })
+
+      });
+    }
 
 
 
@@ -113,6 +177,10 @@
 	 crossorigin="anonymous">
 
 	</script>
+    
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDa4dMSOASs_iLQnhrPoQ8EZgj2Im_pZ7o&callback=initMap">
+    </script>
 </body>
 
 </html>
